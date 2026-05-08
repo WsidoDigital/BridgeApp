@@ -84,10 +84,19 @@ export async function clearAll() {
   await executeSqlAsync(`DELETE FROM attachments;`);
 }
 
+export async function getEntityByLocalId(localId) {
+  const res = await executeSqlAsync(`SELECT * FROM entities WHERE local_id = ? LIMIT 1;`, [localId]);
+  const rows = res.rows._array || [];
+  if (rows.length === 0) return null;
+  const r = rows[0];
+  return { ...r, payload: r.payload ? JSON.parse(r.payload) : null };
+}
+
 export default {
   initSchema,
   upsertEntity,
   getEntities,
+  getEntityByLocalId,
   addOp,
   getPendingOps,
   markOpDone,
