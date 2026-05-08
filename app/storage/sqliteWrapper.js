@@ -92,6 +92,24 @@ export async function getEntityByLocalId(localId) {
   return { ...r, payload: r.payload ? JSON.parse(r.payload) : null };
 }
 
+export async function addAttachment(id, entityLocalId, localPath) {
+  await executeSqlAsync(`INSERT OR REPLACE INTO attachments (id, entity_local_id, local_path, uploaded) VALUES (?,?,?,0);`, [id, entityLocalId, localPath]);
+}
+
+export async function getPendingAttachments(limit = 20) {
+  const res = await executeSqlAsync(`SELECT * FROM attachments WHERE uploaded = 0 LIMIT ?;`, [limit]);
+  return res.rows._array || [];
+}
+
+export async function markAttachmentUploaded(id) {
+  await executeSqlAsync(`UPDATE attachments SET uploaded = 1 WHERE id = ?;`, [id]);
+}
+
+export async function getAttachmentsForEntity(localId) {
+  const res = await executeSqlAsync(`SELECT * FROM attachments WHERE entity_local_id = ?;`, [localId]);
+  return res.rows._array || [];
+}
+
 export default {
   initSchema,
   upsertEntity,
@@ -102,4 +120,8 @@ export default {
   markOpDone,
   deleteEntity,
   clearAll,
+  addAttachment,
+  getPendingAttachments,
+  markAttachmentUploaded,
+  getAttachmentsForEntity,
 };

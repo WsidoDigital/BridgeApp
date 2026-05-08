@@ -1,5 +1,6 @@
 import db from '../storage/sqliteWrapper';
 import dataverseClient from './dataverseClient';
+import attachmentsUploader from './attachmentsUploader';
 
 // Basic sync engine: reads ops queue, batches, pushes to Dataverse, handles retries and conflicts
 const BATCH_SIZE = 20;
@@ -8,6 +9,9 @@ const MAX_RETRIES = 5;
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
 export async function processPendingOps() {
+  // process attachments first
+  await attachmentsUploader.processPendingAttachments();
+
   const ops = await db.getPendingOps(BATCH_SIZE);
   if (!ops || ops.length === 0) return { processed: 0 };
 
