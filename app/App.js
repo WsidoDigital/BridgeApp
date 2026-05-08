@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
+import MSALAuth from './auth/MSALAuth';
 
 export default function App() {
+  const [token, setToken] = useState(null);
+  const POWERAPP_URL = 'https://your-powerapp-url.example';
+
+  if (!token) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <MSALAuth onSuccess={setToken} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Bridging App - WebView Prototype</Text>
+        <Text style={styles.title}>Bridging App - WebView (Authenticated)</Text>
       </View>
       <WebView
-        source={{ uri: 'https://your-powerapp-url.example' }}
+        source={{ uri: POWERAPP_URL, headers: { Authorization: `Bearer ${token}` } }}
         style={styles.webview}
         originWhitelist={["*"]}
       />
